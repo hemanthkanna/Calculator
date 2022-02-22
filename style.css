@@ -43,10 +43,10 @@
   grid-gap: 6px 6px;
 }
 
-.equal{
+#equal{
   grid-column: 3/5;
 }
-.equal:hover{
+#equal:hover{
   background-color: limegreen;
   transition: background-color 0.2s;
 }

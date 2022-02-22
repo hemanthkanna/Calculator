@@ -32,17 +32,22 @@ let expr = document.querySelector(".expr");
 let ans = document.querySelector(".ans");
 const button = document.querySelectorAll("button");
 
+	button.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.className == 'operend' || 'operator') {
+        expr.innerHTML =expr.innerHTML + btn.textContent;
+      }
+      if (btn.id == 'clear') {
+        btn.addEventListener('click', clearScreen);
+        }
+    });
+  });
+
+
+
 const clearScreen = () => {
-  expr.textContent = ''
-  ans.textContent = ''
+  expr.textContent = '';
+  ans.textContent = '';
 }
 
  
-
-	button.forEach(btn => {
-    btn.addEventListener('click', () => {
-      if(button.className == 'clear') {
-        button.addEventListener('click', clearScreen);
-      } 
-    })
-});
