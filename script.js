@@ -1,127 +1,154 @@
-const allButtons = document.querySelectorAll('button');
-const operendButtons = document.querySelectorAll('.operend');
+const numberButtons = document.querySelectorAll('.operend');
 const operatorButtons = document.querySelectorAll('.operator');
+const clearButton = document.getElementById('clear');
+const deleteButton = document.getElementById('delete');
+const equalsButton = document.getElementById('equals');
 const exprDisplay = document.getElementById('expr');
 const resultDisplay = document.getElementById('ans');
-const deleteValue = document.getElementById('delete');
-const clear = document.getElementById('clear');
-const equalsButton = document.getElementById('equals');
 
-let displayValue = '';
+let displayValue1 = '';
 let displayValue2 = '';
-let operator = '';
-let haveDot = false;
 let tempValue1 = 0;
 let tempValue2 = 0;
+let lastOperator = '';
 let tempResult = 0;
 let result = 0;
+let haveDot = false;
 
-
-operendButtons.forEach(numbers => {
-  numbers.addEventListener('click', (e) => {             
-    if (e.target.innerText === '.' && !haveDot) {
-      haveDot = true;
-    } else if (e.target.innerText === '.' && haveDot) {
-      return;
-    }
-
-    if (operator && tempValue1) {
-      displayValue2 =  displayValue2 + e.target.innerText;
-      tempValue2 = parseFloat(displayValue2);   
-    }
-    displayValue = displayValue + e.target.innerText;          
-    exprDisplay.innerText = displayValue;                         
-  })
-});
-
-operatorButtons.forEach(operation => {
-  operation.addEventListener('click', (e) => {    
-    if(!displayValue) {
-      return;     
-    } 
-    if (tempValue1 && tempValue2 && operator) {     
-      evaluate();
-      if (!tempValue1 == 0) {
-        haveDot = false;
-        operator = e.target.innerText;                
-        displayValue +=  ' ' + operator;                       
-        exprDisplay.innerText = displayValue;
-      } else {
-        clearAll();
-      }
-
-    } else {
-      haveDot = false;
-      operator = e.target.innerText;                    
-      tempValue1 = parseFloat(displayValue);           
-      displayValue = displayValue +' '+operator;         
-      exprDisplay.innerText = displayValue;              
-      console.log("temp1 = " + tempValue1);
-      console.log("display1 = " + displayValue);
-    }
-  })
-});
-
-clear.addEventListener('click', clearAll);
-deleteValue.addEventListener('click', deleteElement);
-equalsButton.addEventListener('click', evaluate);
-
-function evaluate() {
-  switch (operator) {
+// function to add numbers
+function add(num1 , num2){
+  tempResult = num1 + num2;
+}
+// function to sub numbers
+function sub(num1, num2) {
+  tempResult = num1 - num2;
+}
+// function to multiply numbers
+function multiply(num1, num2) {
+  tempResult = num1 * num2;
+}
+// function to divide numbers
+function division(num1, num2) {
+  tempResult = num1 / num2;
+}
+// function to divide numbers and returns remainder
+function modulo(num1, num2) {
+  tempResult = num1 % num2;
+}
+  
+// function to run operation after getting input values
+function operate(lastOperator,tempValue1,tempValue2) {
+  switch (lastOperator) {
     case '+':
-      add();     
+      add(tempValue1, tempValue2);
+      updateDisplay();
       break;
     case '-':
-      sub();
+      sub(tempValue1, tempValue2);
+      updateDisplay();
       break;
     case '*':
-      multiply();
+      multiply(tempValue1, tempValue2);
+      updateDisplay();
       break;
     case '/':
-      division();
+      if (tempValue1 == 0 || tempValue2 == 0 && lastOperator == '/') {
+        clearAll();
+        alert("Yoc Cannot Divide By Zero");
+      } else {
+        division(tempValue1, tempValue2);
+        updateDisplay();
+      }
       break;
-    case '%':
-      modulo();
+    case '%':   
+      if (tempValue2 == 0 && lastOperator == '%') {
+        clearAll();
+        alert("Yoc Cannot Divide By Zero");
+      } else {
+        modulo(tempValue1, tempValue2);
+        updateDisplay(); 
+      } 
       break;
-    default: 
-      "error";
+    default:
+      alert('ERROR - INVALID');
       break;
   }
 }
 
-function add() {
-  tempResult = (tempValue1 + tempValue2);
+// function to get input values
+function getInputNumbers() {
+  numberButtons.forEach(numbers => {
+    numbers.addEventListener('click', (e) => {
+      if (e.target.innerText === '.' && !haveDot) {         
+        haveDot = true;
+      } else if (e.target.innerText === '.' && haveDot) {
+        return;
+      }
+  
+      if (lastOperator && tempValue1) {
+        displayValue2 += e.target.innerText;
+        tempValue2 = parseFloat(displayValue2);   
+      }
+      displayValue1 += e.target.innerText;          
+      exprDisplay.innerText = displayValue1;    
+    })
+  })
+}
+
+// function to get the operation to be performed
+function getOperation() {
+  operatorButtons.forEach(operation => {
+    operation.addEventListener('click', (e) => {
+      if(!displayValue1) return;  
+
+      if (tempValue1 && tempValue2 && lastOperator) {
+        operate(lastOperator,tempValue1,tempValue2); 
+        if (!tempValue1 == 0) {
+          lastOperator = e.target.innerText;
+          displayValue1 = result + lastOperator;
+          exprDisplay.innerText = displayValue1;
+        } else {
+          clearAll();
+          resultDisplay.innerText = '0';
+        }
+
+      } else if (exprDisplay.innerText.slice(-1) == ('+' || '-' || '*' || '/' || '%')) {
+          return;
+        } else {
+          haveDot = false;
+          lastOperator = operation.getAttribute('value');
+          tempValue1 = parseFloat(displayValue1);
+          displayValue1 += lastOperator; 
+          exprDisplay.innerText = displayValue1;
+        }
+    })
+  })
+}
+
+
+// performs the operation when '=' sign clicked
+equalsButton.addEventListener('click', (e) => {
+  operate(lastOperator,tempValue1,tempValue2); 
+  displayValue1 = result ;
+  exprDisplay.innerText = displayValue1;
+} );
+
+clearButton.addEventListener('click', clearAll);
+deleteButton.addEventListener('click', deleteElement);
+
+// function to update display and values
+function updateDisplay() {
   result = roundResult(tempResult);
-  valueReset();
+  resultDisplay.innerText = result;
+  tempValue1 = result;
+  tempValue2 = 0;   
+  displayValue2 = '';
+  haveDot = false;       
 }
 
-function sub() {
-  tempResult = (tempValue1 - tempValue2);
-  result = roundResult(tempResult);      
-  valueReset();
-}
-
-function multiply() {
-  tempResult = (tempValue1 * tempValue2);
-  result = roundResult(tempResult);
-  valueReset();
-}
-
-function division() {
-  tempResult = (tempValue1 / tempValue2);
-  result = roundResult(tempResult);
-  valueReset();
-}
-
-function modulo() {
-  tempResult = (tempValue1 % tempValue2);
-  result = roundResult(tempResult);
-  valueReset(); 
-}
-
-
+// function to clear all values and displayScreen
 function clearAll() {
-  displayValue = '';
+  displayValue1 = '';
   displayValue2 = '';
   tempValue1 = 0;
   tempValue2 = 0;
@@ -131,27 +158,23 @@ function clearAll() {
   resultDisplay.innerText = '';
 }
 
-function valueReset() {
-  displayValue = result;                          
-  displayValue2 = '';                                   
-  tempValue1 = tempResult;                               
-  tempValue2 = null;                                     
-  resultDisplay.innerText = result;
-  haveDot = false;
-}
-
+// function to delete last element
 function deleteElement() {
-    if (tempValue1 && operator && tempValue2) {
-      exprDisplay.innerText = exprDisplay.innerText.slice(0, -1);
-      displayValue = exprDisplay.innerText;
-      tempValue2 = tempValue2.toString().slice(0, -1);
-      tempValue2 = parseFloat(tempValue2);
-    } else {
-      exprDisplay.innerText = exprDisplay.innerText.slice(0, -1);
-      displayValue = exprDisplay.innerText;
-    }
+  if (tempValue1 && lastOperator && tempValue2) {
+    exprDisplay.innerText = exprDisplay.innerText.slice(0, -1);
+    displayValue1 = exprDisplay.innerText;
+    tempValue2 = tempValue2.toString().slice(0, -1);
+    tempValue2 = parseFloat(tempValue2);
+  } else {
+    exprDisplay.innerText = exprDisplay.innerText.slice(0, -1);
+    displayValue1 = exprDisplay.innerText;
+  }
 }
 
+// function to round the result value
 function roundResult(number) {
-  return Math.round(number * 1000) / 1000
+  return Math.round(number * 1000) / 1000;
 }
+
+  getInputNumbers();
+  getOperation();
