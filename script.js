@@ -165,6 +165,11 @@ function deleteElement() {
     displayValue1 = exprDisplay.innerText;
     tempValue2 = tempValue2.toString().slice(0, -1);
     tempValue2 = parseFloat(tempValue2);
+  } else if(exprDisplay.innerText.slice(-1) == lastOperator){
+    exprDisplay.innerText = exprDisplay.innerText.slice(0, -1);
+    displayValue1 = exprDisplay.innerText;
+    lastOperator = '';
+    displayValue2 = 0;
   } else {
     exprDisplay.innerText = exprDisplay.innerText.slice(0, -1);
     displayValue1 = exprDisplay.innerText;
